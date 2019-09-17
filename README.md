@@ -27,4 +27,7 @@ Then, execute the script with:
 ```
 python3 de_dupe.py
 ```
+<<<<<<< HEAD
+>>>>>>> ef58d97e78ce4fd8ee96ed435e0d0d90a8bf0c00
+=======
 >>>>>>> ef58d97e78ce4fd8ee96ed435e0d0d90a8bf0c00
