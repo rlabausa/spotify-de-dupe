@@ -1,10 +1,16 @@
 #!/path/to/python3/virtual/env
 
+import os
 import json 
 
 import requests
+from dotenv import load_dotenv
 
-authorization_token = '<YOUR-AUTHORIZATION-TOKEN>'
+proj_dir = os.path.dirname(__file__)
+env_path = os.path.join(proj_dir, '.env')
+load_dotenv(env_path)
+
+authorization_token = os.environ.get('AUTH_TOKEN')
 
 headers = {
         'Accept' : 'application/json',
@@ -14,7 +20,7 @@ headers = {
 
 # build request url
 BASE_URL = 'https://api.spotify.com/v1' 
-playlist_id = '<YOUR-PLAYLIST-ID>'
+playlist_id = os.environ.get('PLAYLIST_ID')
 endpoint = f'playlists/{playlist_id}/tracks'
 url = f'{BASE_URL}/{endpoint}'
 
@@ -66,6 +72,8 @@ for obj in page_objs:
         index += 1
     
     next_url = obj['next']
+
+print('DONE')
     
 
 
