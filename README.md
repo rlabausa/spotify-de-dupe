@@ -1,5 +1,5 @@
 # spotify-de-dupe
-Given a Spotify playlist ID and an access token--with `playlist-modify-public`, `playlist-modify-private`, and `playlist-read-private` scope authorization--this script will go through the specified Spotify playlist and remove all duplicate tracks.
+Given a Spotify playlist ID and an access token--with `playlist-modify-public`, `playlist-modify-private`, and `playlist-read-private` scope authorization--this script will remove all duplicate tracks from the specified Spotify playlist.
 
 ## Running Locally
 Clone the repo, then install the required dependencies by running:
