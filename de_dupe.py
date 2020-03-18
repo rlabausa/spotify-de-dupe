@@ -1,30 +1,8 @@
-#!/path/to/python3/virtual/env
-
 import os
 import json 
 
 import requests
 from dotenv import load_dotenv
-
-PROJ_DIR = os.path.dirname(__file__)
-ENV_PATH = os.path.join(PROJ_DIR, '.env')
-load_dotenv(ENV_PATH)
-
-AUTH_TOKEN = os.environ.get('AUTH_TOKEN')
-
-headers = {
-        'Accept' : 'application/json',
-        'Content-Type' : 'application/json',
-        'Authorization' : f'Bearer {AUTH_TOKEN}'
-} 
-
-BASE_URL = 'https://api.spotify.com/v1' 
-PLAYLIST_ID = os.environ.get('PLAYLIST_ID')
-ENDPOINT = f'playlists/{PLAYLIST_ID}/tracks'
-
-url = f'{BASE_URL}/{ENDPOINT}'
-
-params = {'limit':100, 'fields':'(items(track(id, name, uri))), total, next'} 
 
 def get_pages(reqURL, reqHeaders, reqParams):
     existingURIs = set()
@@ -73,7 +51,28 @@ def delete_dupes(pages, URIs, reqURL, reqHeaders):
         
         nextURL = page['next']
 
-pages, existingURIs = get_pages(url, headers, params)
-delete_dupes(pages, existingURIs, url, headers, )
+if __name__ == "__main__":
+    PROJ_DIR = os.path.dirname(__file__)
+    ENV_PATH = os.path.join(PROJ_DIR, '.env')
+    load_dotenv(ENV_PATH)
 
-print('DONE')
+    AUTH_TOKEN = os.environ.get('AUTH_TOKEN')
+
+    headers = {
+            'Accept' : 'application/json',
+            'Content-Type' : 'application/json',
+            'Authorization' : f'Bearer {AUTH_TOKEN}'
+    } 
+
+    BASE_URL = 'https://api.spotify.com/v1' 
+    PLAYLIST_ID = os.environ.get('PLAYLIST_ID')
+    ENDPOINT = f'playlists/{PLAYLIST_ID}/tracks'
+
+    url = f'{BASE_URL}/{ENDPOINT}'
+
+    params = {'limit':100, 'fields':'(items(track(id, name, uri))), total, next'} 
+    
+    pages, existingURIs = get_pages(url, headers, params)
+    delete_dupes(pages, existingURIs, url, headers, )
+
+    print('DONE')
