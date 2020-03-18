@@ -6,72 +6,81 @@ import json
 import requests
 from dotenv import load_dotenv
 
-proj_dir = os.path.dirname(__file__)
-env_path = os.path.join(proj_dir, '.env')
-load_dotenv(env_path)
+PROJ_DIR = os.path.dirname(__file__)
+ENV_PATH = os.path.join(PROJ_DIR, '.env')
+load_dotenv(ENV_PATH)
 
-authorization_token = os.environ.get('AUTH_TOKEN')
+AUTH_TOKEN = os.environ.get('AUTH_TOKEN')
 
 headers = {
         'Accept' : 'application/json',
         'Content-Type' : 'application/json',
-        'Authorization' : f'Bearer {authorization_token}'
+        'Authorization' : f'Bearer {AUTH_TOKEN}'
 } 
 
 # build request url
 BASE_URL = 'https://api.spotify.com/v1' 
-playlist_id = os.environ.get('PLAYLIST_ID')
-endpoint = f'playlists/{playlist_id}/tracks'
-url = f'{BASE_URL}/{endpoint}'
+PLAYLIST_ID = os.environ.get('PLAYLIST_ID')
+ENDPOINT = f'playlists/{PLAYLIST_ID}/tracks'
+
+url = f'{BASE_URL}/{ENDPOINT}'
 
 # set parameters to be sent with the request
 params = {'limit':100, 'fields':'(items(track(id, name, uri))), total, next'} 
 
-# set to keep track of the song URIs we've already seen
-existing_uris = set()
+def get_pages(reqURL, reqHeaders, reqParams):
+    # keep track of the song URIs we've encountered
+    existingURIs = set()
 
-# array to store the state of the page objects
-page_objs = []
+    # store the state of the page objects
+    pages = []
 
-next_url = url
-while(next_url != None):
-    req = requests.get(next_url, headers=headers, params=params)
+    nextURL = reqURL
+    while(nextURL != None):
+        req = requests.get(nextURL, headers=reqHeaders, params=reqParams)
+        
+        res = req.json()
+        pages.append(res)
+
+        nextURL = res['next']
     
-    res = req.json()
-    page_objs.append(res)
+    return pages, existingURIs
 
-    next_url = res['next']
-
-index = 0
-next_url = f'{BASE_URL}/{endpoint}'
-
-# go through page objects and delete duplicate tracks
-for obj in page_objs:
+def delete_dupes(pages, URIs, reqURL, reqHeaders):
     
-    items = obj['items']
+    nextURL = reqURL
+    index = 0
+    
+    for page in pages:
+        
+        items = page['items']
 
-    for item in items:
-        track = item['track']
-        print(index, track)
+        for item in items:
+            track = item['track']
+            
+            print(index, track)
 
-        if track['uri'] in existing_uris:
-            payload = {"tracks":[{"uri":track["uri"], "positions":[index]}]}
-            payload = json.dumps(payload)
+            if track['uri'] in URIs:
+                payload = {"tracks":[{"uri":track["uri"], "positions":[index]}]}
+                payload = json.dumps(payload)
 
-            del_req = requests.delete(next_url, headers=headers, data=payload)
+                deletedReq = requests.delete(nextURL, headers=reqHeaders, data=payload)
 
-            if del_req.status_code != 200:
-                print(del_req.status_code, del_req.content)
+                if deletedReq.status_code != 200:
+                    print(deletedReq.status_code, deletedReq.content)
+                else:
+                    index -= 1
+                    print('DELETE', f'[{deletedReq.status_code}]', track['name'])
+            
             else:
-                index -= 1
-                print('DELETE', f'[{del_req.status_code}]', track['name'])
+                URIs.add(track['uri'])
+            
+            index += 1
         
-        else:
-            existing_uris.add(track['uri'])
-        
-        index += 1
-    
-    next_url = obj['next']
+        nextURL = page['next']
+
+pages, existingURIs = get_pages(url, headers, params)
+delete_dupes(pages, existingURIs, url, headers, )
 
 print('DONE')
     
