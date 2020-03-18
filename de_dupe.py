@@ -67,12 +67,10 @@ if __name__ == "__main__":
     BASE_URL = 'https://api.spotify.com/v1' 
     PLAYLIST_ID = os.environ.get('PLAYLIST_ID')
     ENDPOINT = f'playlists/{PLAYLIST_ID}/tracks'
-
     url = f'{BASE_URL}/{ENDPOINT}'
-
     params = {'limit':100, 'fields':'(items(track(id, name, uri))), total, next'} 
-    
     pages, existingURIs = get_pages(url, headers, params)
-    delete_dupes(pages, existingURIs, url, headers, )
+    
+    delete_dupes(pages, existingURIs, url, headers)
 
     print('DONE')
