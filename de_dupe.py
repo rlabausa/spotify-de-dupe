@@ -18,21 +18,16 @@ headers = {
         'Authorization' : f'Bearer {AUTH_TOKEN}'
 } 
 
-# build request url
 BASE_URL = 'https://api.spotify.com/v1' 
 PLAYLIST_ID = os.environ.get('PLAYLIST_ID')
 ENDPOINT = f'playlists/{PLAYLIST_ID}/tracks'
 
 url = f'{BASE_URL}/{ENDPOINT}'
 
-# set parameters to be sent with the request
 params = {'limit':100, 'fields':'(items(track(id, name, uri))), total, next'} 
 
 def get_pages(reqURL, reqHeaders, reqParams):
-    # keep track of the song URIs we've encountered
     existingURIs = set()
-
-    # store the state of the page objects
     pages = []
 
     nextURL = reqURL
@@ -47,7 +42,6 @@ def get_pages(reqURL, reqHeaders, reqParams):
     return pages, existingURIs
 
 def delete_dupes(pages, URIs, reqURL, reqHeaders):
-    
     nextURL = reqURL
     index = 0
     
@@ -83,7 +77,3 @@ pages, existingURIs = get_pages(url, headers, params)
 delete_dupes(pages, existingURIs, url, headers, )
 
 print('DONE')
-    
-
-
-
